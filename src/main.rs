@@ -1,3 +1,7 @@
+mod data;
+use data::DataManager;
+
 fn main() {
-    println!("Hello, world!");
+    let _data_manager = DataManager::new();
+
 }
