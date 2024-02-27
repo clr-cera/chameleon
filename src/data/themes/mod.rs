@@ -4,6 +4,7 @@ use super::data_errors::DataError;
 use std::path::PathBuf;
 
 mod link;
+mod input;
 
 impl DataManager {
     pub fn set_theme(self, str: &String) -> Result<(),DataError>{

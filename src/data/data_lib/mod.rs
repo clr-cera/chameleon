@@ -1,21 +1,14 @@
 use std::path::PathBuf;
 use std::collections::VecDeque;
 use std::fs;
+use std::io::Cursor;
+use std::fs::File;
+use std::process::exit;
 
 use super::DataManager;
 use super::data_errors::DataError;
 
 impl DataManager {
-    fn ensure_dir(&self, dir_path: &PathBuf) {
-        // fix relative
-        let relative = Self::make_relative(&dir_path);
-        
-        let mut final_path = self.config_path.clone();
-        final_path = final_path.join(&relative);
-       
-        self.check_and_create_dir(&final_path);
-    }
-    
     pub fn make_relative(path: &PathBuf) -> PathBuf {
         let current_dir = std::env::current_dir().unwrap();
 
@@ -55,5 +48,69 @@ impl DataManager {
 
         Self::ensure_parent(&backup_file_path);
         fs::rename(&file_path, &backup_file_path).expect(format!("{}",DataError::WriteAccess { path: backup_file_path.into() }).as_str());
+    }
+    
+    pub async fn download_file(path: &PathBuf, url:  &str) {
+        let response = reqwest::get(url).await.expect(DataError::NoConnection { url: url.to_string() }.to_string().as_str());
+
+        let response_bytes = response.bytes().await.expect("I am not sure how could this go wrong");
+        // Wrap bytes into cursor so that they can be copied
+        let mut content = Cursor::new(response_bytes);
+
+        DataManager::ensure_parent(path);
+        let mut file = File::create(path).expect(DataError::WriteAccess {path: path.clone()}.to_string().as_str());
+        
+        std::io::copy(&mut content, &mut file).expect(DataError::WriteAccess { path: path.clone() }.to_string().as_str());
+    }
+   
+    // This function was copied from the zip crate example with slight modifications, TODO
+    // modularize and improve this function
+    pub fn extract_zip(path: &PathBuf, dir_name: &String) -> PathBuf{
+        let zipfile = File::open(path).expect(DataError::WriteAccess { path: path.clone()}.to_string().as_str());
+        let mut archive = match zip::ZipArchive::new(zipfile){
+            Err(_) => {
+                println!("File is not zip.");
+                std::fs::remove_file(path).expect(DataError::WriteAccess { path: path.clone().into() }.to_string().as_str());
+                exit(1);
+            }
+            Ok(value) => value,
+        };
+        
+        let extract_dir_path = path.parent().unwrap().join(dir_name);
+        std::fs::create_dir_all(&extract_dir_path).expect(DataError::WriteAccess { path: extract_dir_path.clone().into() }.to_string().as_str());
+
+        for i in 0..archive.len() {
+            let mut file = archive.by_index(i).unwrap();
+            let outpath = extract_dir_path.join(match file.enclosed_name() {
+                Some(path) => path.to_owned(),
+                None => continue,
+            });
+
+            if (*file.name()).ends_with('/') {
+                fs::create_dir_all(&outpath).unwrap();
+            } 
+
+            else {
+                if let Some(p) = outpath.parent() {
+                    if !p.exists() {
+                        fs::create_dir_all(p).unwrap();
+                    }
+                }
+                let mut outfile = fs::File::create(&outpath).unwrap();
+                std::io::copy(&mut file, &mut outfile).unwrap();
+            }
+
+            // Get and Set permissions
+            #[cfg(unix)]
+            {
+                use std::os::unix::fs::PermissionsExt;
+
+                if let Some(mode) = file.unix_mode() {
+                    fs::set_permissions(&outpath, fs::Permissions::from_mode(mode)).unwrap();
+                }
+            }
+        }
+        return extract_dir_path;
+
     }
 }
