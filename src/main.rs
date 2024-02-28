@@ -14,13 +14,18 @@ async fn main() {
     let action = args::Args::parse().get_action();
 
     match action {
-        Action::Standby => (),
         Action::SetTheme(theme) => {
-            if let Err(error) = data_manager.set_theme(&theme) {println!("{}", error)};
+            data_manager.set_theme(&theme);
         },
 
         Action::WebInstall(url) => {
             block_on(data_manager.web_install(&url));
         }
+
+        Action::LocalInstall(path) => {
+            data_manager.local_install(&path);
+        }
+
+        Action::Standby => (),
     }
 }

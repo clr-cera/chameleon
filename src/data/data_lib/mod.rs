@@ -65,23 +65,22 @@ impl DataManager {
    
     // This function was copied from the zip crate example with slight modifications, TODO
     // modularize and improve this function
-    pub fn extract_zip(path: &PathBuf, dir_name: &String) -> PathBuf{
-        let zipfile = File::open(path).expect(DataError::WriteAccess { path: path.clone()}.to_string().as_str());
+    pub fn extract_zip(zip_path: &PathBuf, path_to_extract: &PathBuf) {
+        let zipfile = File::open(zip_path).expect(DataError::WriteAccess { path: zip_path.clone()}.to_string().as_str());
         let mut archive = match zip::ZipArchive::new(zipfile){
             Err(_) => {
                 println!("File is not zip.");
-                std::fs::remove_file(path).expect(DataError::WriteAccess { path: path.clone().into() }.to_string().as_str());
+                std::fs::remove_file(zip_path).expect(DataError::WriteAccess { path: zip_path.clone().into() }.to_string().as_str());
                 exit(1);
             }
             Ok(value) => value,
         };
         
-        let extract_dir_path = path.parent().unwrap().join(dir_name);
-        std::fs::create_dir_all(&extract_dir_path).expect(DataError::WriteAccess { path: extract_dir_path.clone().into() }.to_string().as_str());
+        std::fs::create_dir_all(&path_to_extract).expect(DataError::WriteAccess { path: path_to_extract.clone().into() }.to_string().as_str());
 
         for i in 0..archive.len() {
             let mut file = archive.by_index(i).unwrap();
-            let outpath = extract_dir_path.join(match file.enclosed_name() {
+            let outpath = path_to_extract.join(match file.enclosed_name() {
                 Some(path) => path.to_owned(),
                 None => continue,
             });
@@ -110,7 +109,5 @@ impl DataManager {
                 }
             }
         }
-        return extract_dir_path;
-
     }
 }

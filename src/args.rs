@@ -10,6 +10,9 @@ pub struct Args {
 
     #[arg(short, long, default_value_t = String::new())]
     pub web_install: String,
+    
+    #[arg(short, long, default_value_t = String::new())]
+    pub local_install: String,
 }
 
 impl Args {
@@ -18,6 +21,8 @@ impl Args {
 
         else if self.web_install.len() > 0 {Action::WebInstall(self.web_install.clone())}
 
+        else if self.local_install.len() > 0 {Action::LocalInstall(self.local_install.clone())}
+
         else {Action::Standby}
     }
 }
@@ -25,5 +30,6 @@ impl Args {
 pub enum Action {
     SetTheme(String),
     WebInstall(String),
+    LocalInstall(String),
     Standby,
 }
