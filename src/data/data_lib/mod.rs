@@ -38,16 +38,25 @@ impl DataManager {
         }
     }
     
-    pub fn backup_file(&self, file_path: &PathBuf) {
+    pub fn backup_file(&self, file_path: &PathBuf, target_path: &PathBuf) {
+        // This function backups a file that will be substituted, also considering its target_path
         let initial_current_dir = std::env::current_dir().unwrap();
-        std::env::set_current_dir(&self.config_path).expect("Could not set current directory when recursing into theme directory");
-        
-        let backup_file_path = self.backup_path.join(Self::make_relative(file_path));
-        
-        std::env::set_current_dir(&initial_current_dir).expect("Could not set current directory when recursing into theme directory");
+        Self::switch_current_dir(target_path);
+      
+        let parent_name = target_path.file_name().unwrap().to_str().unwrap(); 
+
+        let backup_file_path = self.backup_path.join(parent_name).join(Self::make_relative(file_path));
+
+        Self::switch_current_dir(&initial_current_dir);
 
         Self::ensure_parent(&backup_file_path);
+        println!("{}", file_path.display());
         fs::rename(&file_path, &backup_file_path).expect(format!("{}",DataError::WriteAccess { path: backup_file_path.into() }).as_str());
+    }
+
+    pub fn switch_current_dir(path: &PathBuf) {
+        std::env::set_current_dir(path).expect(DataError::CurrentDirChange { path: path.clone() }.to_string().as_str());
+
     }
     
     pub async fn download_file(path: &PathBuf, url:  &str) {

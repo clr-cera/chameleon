@@ -1,25 +1,31 @@
 use std::{fs, path::PathBuf};
 
-use dirs::{data_dir, config_dir};
+use dirs::{config_dir, data_dir, home_dir};
 
 mod themes;
 mod data_errors;
 mod data_lib;
 
 use tempdir::TempDir;
+use data_errors::DataError;
+
 
 pub struct DataManager {
     data_path: PathBuf,
+
     themes_path: PathBuf,
     backup_path: PathBuf,
+    
     config_path:PathBuf,
+    scripts_path: PathBuf,
+
     tmp_dir: TempDir,
 }
 
 impl DataManager {
     pub fn new() -> Self{
         let data_path = {
-            let mut path = data_dir().expect("The operational system is not supported by this application"); 
+            let mut path = data_dir().expect(DataError::OSNotSupported.to_string().as_str());
             path.push("chameleon");
             path
         };
@@ -29,14 +35,14 @@ impl DataManager {
             themes_path: {
                 data_path.join("themes")
             },
-
             backup_path: {
                 data_path.join("backup")
             },
             
-            config_path: config_dir().expect("The operational system is not supported by this application"),
-            
             data_path,
+            
+            config_path: config_dir().expect(DataError::OSNotSupported.to_string().as_str()),
+            scripts_path: home_dir().expect(DataError::OSNotSupported.to_string().as_str()).join(".scripts"),
 
             tmp_dir: TempDir::new("chameleon").expect("Could not create temporary directory"),
         }; 
