@@ -51,7 +51,7 @@ impl DataManager {
         Self::switch_current_dir(&initial_current_dir);
 
         Self::ensure_parent(&backup_file_path);
-        println!("{}", file_path.display()); //DEBUG
+        //println!("{}", file_path.display()); //DEBUG
         fs::rename(&file_path, &backup_file_path).expect(format!("{}",DataError::WriteAccess { path: backup_file_path.into() }).as_str());
     }
 

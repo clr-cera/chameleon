@@ -19,6 +19,7 @@ impl BinManager {
         Self::execute(&command_text);
     }
 
+    // TODO throw this into WallpaperSetter itself
     fn get_wallpaper_setter() -> Option<WallpaperSetter> {
         if Self::is_program_in_path("swww") {return Some(WallpaperSetter::Swww)}
 

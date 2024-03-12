@@ -49,7 +49,7 @@ impl DataManager {
         if theme_path.join(TOML_NAME).exists() {
             let toml_text = fs::read_to_string(theme_path.join(TOML_NAME)).unwrap_display();
             let data: Data = toml::from_str(&toml_text).unwrap();
-            if data.name.contains(theme_name) {
+            if data.name == theme_name {
                 return true;
             }
         }
