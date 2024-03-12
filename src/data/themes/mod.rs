@@ -3,7 +3,7 @@ use serde::Deserialize;
 
 use super::DataManager;
 use super::data_errors::DataError;
-
+use super::settings::BinManager;
 use std::fs;
 use std::path::PathBuf;
 
@@ -26,6 +26,9 @@ pub struct Data {
 
     pub wallpaper: String,
     pub showcase: String,
+
+    pub name: String,
+    pub description: String
 }
 
 impl Theme {
@@ -35,23 +38,22 @@ impl Theme {
 }
 
 impl DataManager {
-    pub fn set_theme(&self, str: &str) {
-        let theme_path = self.themes_path.join(str);
-        Self::check_theme(&theme_path).unwrap_display();
-        
-        let theme = Self::get_theme(&theme_path);
+    pub fn set_theme(&self, theme_name: &str) {
+        let theme = self.find_theme(theme_name).expect(DataError::ThemeNotFound { theme_name: theme_name.to_string() }.to_string().as_str());
         self.link_theme(&theme);
 
+        Self::make_commands(&theme);
     }
 
-    fn check_theme(theme_path: &PathBuf) -> Result<(), DataError> {
-        if !(theme_path.exists() || theme_path.is_file()) {
-             return Err(DataError::ThemeNotFound {theme_name: String::from(theme_path.file_name().expect("Couldnt get file name of theme").to_str().unwrap())})
+    fn check_theme(theme_path: &PathBuf, theme_name: &str) -> bool {
+        if theme_path.join(TOML_NAME).exists() {
+            let toml_text = fs::read_to_string(theme_path.join(TOML_NAME)).unwrap_display();
+            let data: Data = toml::from_str(&toml_text).unwrap();
+            if data.name.contains(theme_name) {
+                return true;
+            }
         }
-        if !(theme_path.join(TOML_NAME).exists()) {
-            return Err(DataError::NoToml { theme_name: String::from(theme_path.file_name().unwrap().to_str().unwrap()) })
-        }
-        Ok(())
+        false
     }
 
     fn get_theme(theme_path: &PathBuf) -> Theme{
@@ -61,6 +63,25 @@ impl DataManager {
         Theme {
             data,
             path: theme_path.clone(),
+        }
+    }
+
+    fn find_theme(&self, theme_name: &str) -> Option<Theme>{
+        //This function iterates through all themes and finds one which has the same name as
+        //informed
+        for theme in self.themes_path.read_dir().unwrap() {
+            let theme_path = theme.unwrap().path();
+            if Self::check_theme(&theme_path, theme_name) {
+                return Some(Self::get_theme(&theme_path));
+            }
+        }
+
+        None
+    }
+
+    fn make_commands(theme: &Theme) {
+        if theme.data.wallpaper.len() > 0 {
+            BinManager::set_wallpaper(&theme.join_path(&theme.data.wallpaper))
         }
     }
 }
