@@ -2,32 +2,21 @@ use std::path::PathBuf;
 use std::{env, fs};
 use std::process::Command;
 
+mod wallpaper;
+use wallpaper::WallpaperSetter;
+
+
 pub struct BinManager {
 }
 
-enum WallpaperSetter {
-    Swww,
-}
-
-impl WallpaperSetter {
-    pub fn set(&self, wallpaper_path: &PathBuf) {
-        let command_text: String = match self {
-            Self::Swww => format!("swww img {}", wallpaper_path.display()),
-        };
-        
-        let mut command = Command::new("sh"); command.arg("-c");
-        command.arg(command_text.as_str());
-        
-        command.spawn().expect(format!("Could not execute command {}", command_text).as_str());
-    }
-}
 impl BinManager {
     pub fn set_wallpaper(wallpaper_path: &PathBuf) {
         let setter = if let Some(value) = Self::get_wallpaper_setter() {
             value
         } else {return};
 
-        setter.set(wallpaper_path);
+        let command_text = setter.get_command(wallpaper_path);
+        Self::execute(&command_text);
     }
 
     fn get_wallpaper_setter() -> Option<WallpaperSetter> {
@@ -46,5 +35,12 @@ impl BinManager {
             }
         }
         false
+    }
+
+    fn execute(command_text: &str) {
+        let mut command = Command::new("sh"); command.arg("-c");
+        command.arg(command_text);
+        
+        command.spawn().expect(format!("Could not execute command {}", command_text).as_str());
     }
 }
