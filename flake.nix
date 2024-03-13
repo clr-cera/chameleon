@@ -1,5 +1,5 @@
 {
-  description = "A devShell example";
+  description = "Chameleon devshell";
 
   inputs = {
     nixpkgs.url      = "github:NixOS/nixpkgs/nixos-unstable";
@@ -19,7 +19,7 @@
       with pkgs;
       {
         devShells.default = mkShell {
-          name = "Chameleon";
+          name = "chameleon";
           buildInputs = [
             (rust-bin.stable.latest.default.override {
               extensions = [ "rust-src" ];
