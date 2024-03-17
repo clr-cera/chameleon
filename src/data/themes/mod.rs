@@ -3,12 +3,12 @@ use serde::Deserialize;
 
 use super::DataManager;
 use super::data_errors::DataError;
-use super::settings::BinManager;
+use super::binaries::BinManager;
 use std::fs;
 use std::path::PathBuf;
 
 mod link;
-mod input;
+mod install;
 
 const TOML_NAME: &str = "Cham.toml";
 

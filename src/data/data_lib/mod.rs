@@ -4,7 +4,6 @@ use std::fs;
 use std::io::Cursor;
 use std::fs::File;
 use std::process::exit;
-use std::env;
 
 use super::DataManager;
 use super::data_errors::DataError;

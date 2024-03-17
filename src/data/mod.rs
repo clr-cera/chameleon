@@ -5,7 +5,7 @@ use dirs::{config_dir, data_dir, home_dir};
 mod themes;
 mod data_errors;
 mod data_lib;
-mod settings;
+mod binaries;
 
 use tempdir::TempDir;
 use data_errors::DataError;
