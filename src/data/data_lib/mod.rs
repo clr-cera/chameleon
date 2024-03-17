@@ -38,20 +38,42 @@ impl DataManager {
         }
     }
     
-    pub fn backup_file(&self, file_path: &PathBuf, target_path: &PathBuf) {
+    pub fn backup_file(&self, file_path: &PathBuf, dir_path: &PathBuf) {
+        // This function backups a file that will be substituted, also considering its base
+        // directory
+        Self::move_file(&self.backup_path, file_path, dir_path)
+    }
+    
+    pub fn move_file(target_path: &PathBuf, file_path: &PathBuf, dir_path: &PathBuf) {
         // This function backups a file that will be substituted, also considering its target_path
         let initial_current_dir = std::env::current_dir().unwrap();
-        Self::switch_current_dir(target_path);
+        Self::switch_current_dir(dir_path);
       
-        let parent_name = target_path.file_name().unwrap().to_str().unwrap(); 
+        let parent_name = dir_path.file_name().unwrap().to_str().unwrap(); 
 
-        let backup_file_path = self.backup_path.join(parent_name).join(Self::make_relative(file_path));
+        let final_file_path = target_path.join(parent_name).join(Self::make_relative(file_path));
 
         Self::switch_current_dir(&initial_current_dir);
 
-        Self::ensure_parent(&backup_file_path);
+        Self::ensure_parent(&final_file_path);
         //println!("{}", file_path.display()); //DEBUG
-        fs::rename(&file_path, &backup_file_path).expect(format!("{}",DataError::WriteAccess { path: backup_file_path.into() }).as_str());
+        fs::rename(&file_path, &final_file_path).expect(format!("{}",DataError::WriteAccess { path: final_file_path.into() }).as_str());
+    }
+
+    pub fn copy_file(target_path: &PathBuf, file_path: &PathBuf, dir_path: &PathBuf) {
+        // This function backups a file that will be substituted, also considering its target_path
+        let initial_current_dir = std::env::current_dir().unwrap();
+        Self::switch_current_dir(dir_path);
+      
+        let parent_name = dir_path.file_name().unwrap().to_str().unwrap(); 
+
+        let final_file_path = target_path.join(parent_name).join(Self::make_relative(file_path));
+
+        Self::switch_current_dir(&initial_current_dir);
+
+        Self::ensure_parent(&final_file_path);
+        //println!("{}", final_file_path.display()); //DEBUG
+        fs::copy(&file_path, &final_file_path).expect(format!("{}",DataError::WriteAccess { path: final_file_path.into() }).as_str());
     }
 
     pub fn switch_current_dir(path: &PathBuf) {
