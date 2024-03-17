@@ -9,6 +9,7 @@ use std::path::PathBuf;
 
 mod link;
 mod install;
+mod reset;
 
 const TOML_NAME: &str = "Cham.toml";
 

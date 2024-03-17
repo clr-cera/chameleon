@@ -15,16 +15,21 @@ async fn main() {
 
     match action {
         Action::SetTheme(theme) => {
+            data_manager.reset();
             data_manager.set_theme(&theme);
         },
 
         Action::WebInstall(url) => {
             block_on(data_manager.web_install(&url));
-        }
+        },
 
         Action::LocalInstall(path) => {
             data_manager.local_install(&path);
-        }
+        },
+
+        Action::Reset => {
+            data_manager.reset();
+        },
 
         Action::Standby => (),
     }

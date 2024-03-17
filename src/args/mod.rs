@@ -13,11 +13,16 @@ pub struct Args {
     
     #[arg(short, long, default_value_t = String::new())]
     pub local_install: String,
+
+    #[arg(short, long, default_value_t = false)]
+    pub reset: bool
 }
 
 impl Args {
     pub fn get_action(&self) -> Action{
-        if self.set.len() > 0 {Action::SetTheme(self.set.clone())}
+        if self.reset == true {Action::Reset}
+
+        else if self.set.len() > 0 {Action::SetTheme(self.set.clone())}
 
         else if self.web_install.len() > 0 {Action::WebInstall(self.web_install.clone())}
 
@@ -32,4 +37,5 @@ pub enum Action {
     WebInstall(String),
     LocalInstall(String),
     Standby,
+    Reset,
 }
