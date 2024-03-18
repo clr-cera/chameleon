@@ -19,6 +19,7 @@ pub struct DataManager {
     
     config_path:PathBuf,
     scripts_path: PathBuf,
+    bin_path: PathBuf,
 
     tmp_dir: TempDir,
 }
@@ -44,6 +45,7 @@ impl DataManager {
             
             config_path: config_dir().expect(DataError::OSNotSupported.to_string().as_str()),
             scripts_path: home_dir().expect(DataError::OSNotSupported.to_string().as_str()).join(".scripts"),
+            bin_path: home_dir().expect(DataError::OSNotSupported.to_string().as_str()).join(".local/bin"),
 
             tmp_dir: TempDir::new("chameleon").expect("Could not create temporary directory"),
         }; 
