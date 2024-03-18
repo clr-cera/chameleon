@@ -14,6 +14,9 @@ impl DataManager {
         if data.scripts.len() > 0 {
             self.link_directory(&theme.join_path(&data.scripts), &self.scripts_path);
         }
+        if data.bin.len() > 0 {
+            self.link_directory(&theme.join_path(&data.bin), &self.bin_path);
+        }
         
 
     }

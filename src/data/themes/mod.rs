@@ -24,6 +24,7 @@ pub struct Theme {
 pub struct Data {
     pub config: String,
     pub scripts: String,
+    pub bin: String,
 
     pub wallpaper: String,
     pub showcase: String,

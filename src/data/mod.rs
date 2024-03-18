@@ -67,6 +67,7 @@ impl DataManager {
 
         self.check_and_create_dir(&self.scripts_path);
         self.check_and_create_dir(&self.config_path);
+        self.check_and_create_dir(&self.bin_path);
         
     }
 
