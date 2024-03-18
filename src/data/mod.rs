@@ -64,6 +64,9 @@ impl DataManager {
 
         self.check_and_create_dir(&self.themes_path);
         self.check_and_create_dir(&self.backup_path);
+
+        self.check_and_create_dir(&self.scripts_path);
+        self.check_and_create_dir(&self.config_path);
         
     }
 
