@@ -38,9 +38,14 @@ impl BinManager {
         false
     }
 
-    fn execute(command_text: &str) {
-        let mut command = Command::new("sh"); command.arg("-c");
-        command.arg(command_text);
+    pub fn execute(command_text: &str) {
+        let words: Vec<(usize, &str)> = command_text.split(' ').enumerate().collect();
+        let mut command = Command::new(words[0].1);
+        for word in words {
+            if word.0 != 0 {
+                command.arg(word.1);
+            }
+        }
         
         command.spawn().expect(format!("Could not execute command {}", command_text).as_str());
     }

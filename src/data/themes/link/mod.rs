@@ -17,8 +17,6 @@ impl DataManager {
         if data.bin.len() > 0 {
             self.link_directory(&theme.join_path(&data.bin), &self.bin_path);
         }
-        
-
     }
 
     fn link_directory(&self, dir_path: &PathBuf, target_path: &PathBuf) {

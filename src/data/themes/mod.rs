@@ -3,13 +3,13 @@ use serde::Deserialize;
 
 use super::DataManager;
 use super::data_errors::DataError;
-use super::binaries::BinManager;
 use std::fs;
 use std::path::PathBuf;
 
 mod link;
 mod install;
 mod reset;
+mod fixup;
 
 const TOML_NAME: &str = "Cham.toml";
 
@@ -26,6 +26,7 @@ pub struct Data {
     pub scripts: String,
     pub bin: String,
 
+    pub fixup_inline: Vec<String>,
     pub wallpaper: String,
     pub showcase: String,
 
@@ -43,8 +44,7 @@ impl DataManager {
     pub fn set_theme(&self, theme_name: &str) {
         let theme = self.find_theme(theme_name).expect(DataError::ThemeNotFound { theme_name: theme_name.to_string() }.to_string().as_str());
         self.link_theme(&theme);
-
-        Self::make_commands(&theme);
+        theme.fixup();
     }
 
     fn check_theme(theme_path: &PathBuf, theme_name: &str) -> bool {
@@ -80,12 +80,4 @@ impl DataManager {
 
         None
     }
-
-    fn make_commands(theme: &Theme) {
-        if theme.data.wallpaper.len() > 0 {
-            BinManager::set_wallpaper(&theme.join_path(&theme.data.wallpaper))
-        }
-    }
 }
-
-
