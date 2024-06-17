@@ -7,7 +7,9 @@ repository = "https://github.com/clr-cera/chameleon"
 description = "A universal theme switcher for unix systems"
 keywords = ["cli", "theme", "unix", "custom"]
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[[bin]]
+name = "chameleon"
+path = "src/main.rs"
 
 [dependencies]
 clap = { version = "4.5.1", features = ["derive"] }
