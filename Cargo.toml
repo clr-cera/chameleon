@@ -2,6 +2,10 @@
 name = "chameleon"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
+repository = "https://github.com/clr-cera/chameleon"
+description = "A universal theme switcher for unix systems"
+keywords = ["cli", "theme", "unix", "custom"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
